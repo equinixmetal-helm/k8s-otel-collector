@@ -1,0 +1,73 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opentelemetry-collector
+  labels:
+    k8s-app: opentelemetry-collector
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      k8s-app: opentelemetry-collector
+  template:
+    metadata:
+      labels:
+        k8s-app: opentelemetry-collector
+    spec:
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: opentelemetry-collector-config
+          configMap:
+            name: opentelemetry-collector
+            items:
+              - key: opentelemetry-collector-config
+                path: opentelemetry-collector-config.yaml
+      containers:
+        - name: opentelemetry-collector
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - "/otelcontribcol"
+            - "--config=/conf/opentelemetry-collector-config.yaml"
+          env:
+            - name: HONEYCOMB_TEAM
+              valueFrom:
+                secretKeyRef:
+                  name: honeycomb-secret-key
+                  key: api-key
+            - name: HONEYCOMB_DATASET
+              value: {{ .Values.honeycomb.dataset }}
+          # These values don't change:
+          ports:
+            - name: otlp-http
+              containerPort: 55681
+              protocol: TCP
+            - name: otlp-grpc
+              containerPort: 4317
+              protocol: TCP
+          volumeMounts:
+            - name: opentelemetry-collector-config
+              mountPath: /conf
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 10
+# TODO how do we get cluster info?
+{{ if not (has "single-node-cluster" .Values.clusterInfo.tags) }}
+          # You may want to configure resources depending on hardware:
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+{{- end }}

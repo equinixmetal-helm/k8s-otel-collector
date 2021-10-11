@@ -1,0 +1,8 @@
+extends: relaxed
+ignore: |
+  /templates/**
+rules:
+  line-length: false
+  trailing-spaces:
+    ignore: |
+      test-output/

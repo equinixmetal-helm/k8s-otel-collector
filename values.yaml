@@ -1,0 +1,24 @@
+---
+rookEnabled: False
+
+clusterFQDN: ''
+clusterShortName: ''
+nameOverride: ""
+fullnameOverride: ""
+
+env: 
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://opentelemetry-collector:55681"
+
+location: ''
+packetAPI: ''
+
+clusterInfo: {}
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: "0.22.0"
+  pullPolicy: IfNotPresent
+
+honeycomb:
+  dataset: production
+  existingSecret: honeycomb-secret-key
