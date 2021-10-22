@@ -13,25 +13,6 @@ mkdir charts
 helm package ~/path/to/helm-equinix-opentelemetry-collector --destination ./charts
 ```
 
-Create a `external-secret-honeycomb.yaml` template to get the application secret key from keymaker:
-
-```yaml
----
-apiVersion: keymaker.equinixmetal.com/v1
-kind: ExternalSecretPull
-metadata:
-  name: "honeycomb-secret-key"
-  labels:
-    k8s-app: narwhal
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
-spec:
-  backend: ssm
-  mappings:
-    - key: /prod/narwhal/narwhal-honeycomb-secret/v1
-      name: api-key
-```
-
 In `values.yaml`, add the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable:
 
 ```yaml
@@ -42,6 +23,14 @@ appname:
 ```
 
 Your application's OpenTelemetry configuration looks for that environment variable to determine where to send data.
+
+Note: If the value for the OTLP endpoint is updated from a previous version running in your cluster,
+you will need to restart your pods so that they pick up the new endpoint.
+
+## Troubleshooting
+
+[Follow the instructions in these docs](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md)
+to set the Collector's own logs to `DEBUG`.
 
 ## Architecture
 
