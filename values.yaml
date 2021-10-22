@@ -1,17 +1,4 @@
 ---
-rookEnabled: False
-
-clusterFQDN: ''
-clusterShortName: ''
-nameOverride: ""
-fullnameOverride: ""
-
-env: 
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://opentelemetry-collector:55681"
-
-location: ''
-packetAPI: ''
-
 clusterInfo: {}
 
 image:
@@ -21,4 +8,3 @@ image:
 
 honeycomb:
   dataset: production
-  existingSecret: honeycomb-secret-key
