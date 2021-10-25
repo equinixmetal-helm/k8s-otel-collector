@@ -37,7 +37,7 @@ spec:
             - name: HONEYCOMB_TEAM
               valueFrom:
                 secretKeyRef:
-                  name: honeycomb-secre
+                  name: honeycomb-secret
                   key: honeycomb-api-key
             - name: HONEYCOMB_DATASET
               value: {{ .Values.honeycomb.dataset }}
