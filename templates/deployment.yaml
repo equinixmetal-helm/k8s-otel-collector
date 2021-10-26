@@ -13,6 +13,9 @@ spec:
       k8s-app: opentelemetry-collector
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/opentelemetry-collector-config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/external-secret-honeycomb.yaml") . | sha256sum }}
       labels:
         k8s-app: opentelemetry-collector
     spec:
@@ -34,8 +37,8 @@ spec:
             - name: HONEYCOMB_TEAM
               valueFrom:
                 secretKeyRef:
-                  name: honeycomb-secret-key
-                  key: api-key
+                  name: honeycomb-secret
+                  key: honeycomb-api-key
             - name: HONEYCOMB_DATASET
               value: {{ .Values.honeycomb.dataset }}
           # These values don't change:
@@ -60,7 +63,6 @@ spec:
               path: /
               port: 13133
             initialDelaySeconds: 10
-# TODO how do we get cluster info?
 {{ if not (has "single-node-cluster" .Values.clusterInfo.tags) }}
           # You may want to configure resources depending on hardware:
           resources:
