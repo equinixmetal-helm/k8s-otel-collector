@@ -24,12 +24,14 @@ For apps sending OTLP over HTTP (Ruby apps), use the HTTP endpoint:
 
 ```shell
 export OTEL_EXPORTER_OTLP_ENDPOINT="http://opentelemetry-collector:55681"
+export OTEL_RUBY_EXPORTER_OTLP_SSL_VERIFY_NONE=true
 ```
 
 For apps sending OTLP over gRPC (Go apps), use the gRPC endpoint:
 
 ```shell
-export OTEL_EXPORTER_OTLP_ENDPOINT="opentelemetry-collector:4317
+export OTEL_EXPORTER_OTLP_ENDPOINT="opentelemetry-collector:4317"
+export OTEL_EXPORTER_OTLP_INSECURE=true
 ```
 
 Depending on the app's Helm chart configuration, the environment variable may need to be set in different ways.
@@ -40,6 +42,8 @@ Most k8s-site-{appname} charts will set environment variables in `values.yaml` l
   env:
     . . .
     OTEL_EXPORTER_OTLP_ENDPOINT: "opentelemetry-collector:4317"
+    OTEL_EXPORTER_OTLP_INSECURE: "true"
+
 ```
 
 If you're not sure where to add the environment variable, ask SRE (`#sre`) or the Delivery team (`#eng-k8s`) for help.
@@ -72,7 +76,7 @@ The final key path should look like `/prod/{appname}/honeycomb-secret/v1`, which
 
 ### Syncing in Argo
 
-For initial initial deployment and any changes to the OTLP endpoint, the app's pods will need to be restarted in order to pick up the new/updated `OTEL_EXPORTER_OTLP_ENDPOINT`.
+For initial initial deployment and any changes to the OTLP endpoint, the app's pods will need to be restarted in order to pick up the new/updated environment variables.
 For some configurations, Argo will restart the pods automatically.
 For others, you may need to update the Helm chart so that Argo detects a change in the environment variables.
 Reach out to SRE (`#sre`) or the Delivery team (`#eng-k8s`) for help with that.
