@@ -43,7 +43,6 @@ Most k8s-site-{appname} charts will set environment variables in `values.yaml` l
     . . .
     OTEL_EXPORTER_OTLP_ENDPOINT: "opentelemetry-collector:4317"
     OTEL_EXPORTER_OTLP_INSECURE: "true"
-
 ```
 
 If you're not sure where to add the environment variable, ask SRE (`#sre`) or the Delivery team (`#eng-k8s`) for help.
