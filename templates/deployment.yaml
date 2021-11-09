@@ -67,9 +67,9 @@ spec:
           # You may want to configure resources depending on hardware:
           resources:
             limits:
-              cpu: 1000m
-              memory: 2Gi
+              cpu: {{ .Values.resources.cpu | default "1" }}
+              memory: {{ .Values.resources.memory | default "2Gi" }}
             requests:
-              cpu: 1000m
-              memory: 2Gi
+              cpu: {{ .Values.resources.cpu | default "1" }}
+              memory: {{ .Values.resources.memory | default "2Gi" }}
 {{- end }}
