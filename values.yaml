@@ -8,3 +8,5 @@ image:
 
 honeycomb:
   dataset: production
+
+resources: {}
