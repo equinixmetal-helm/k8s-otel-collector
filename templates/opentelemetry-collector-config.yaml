@@ -19,6 +19,23 @@ data:
         limit_mib: "400"
         spike_limit_mib: "100"
         check_interval: "5s"
+      resource:
+        attributes:
+        - key: k8s.cluster.endpoint
+          value: {{ .Values.clusterInfo.apiEndpoint }}
+          action: insert
+        - key: k8s.cluster.class
+          value: {{ .Values.clusterInfo.class }}
+          action: insert
+        - key: k8s.cluster.fqdn
+          value: {{ .Values.clusterInfo.fqdn }}
+          action: insert
+        - key: k8s.cluster.name
+          value: {{ .Values.clusterInfo.name }}
+          action: insert
+        - key: metal.facility
+          value: {{ .Values.clusterInfo.facility }}
+          action: insert
     exporters:
       otlp:
         endpoint: "api.honeycomb.io:443"
