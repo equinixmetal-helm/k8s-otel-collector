@@ -1,5 +1,5 @@
 apiVersion: v2
-name: helm-equinix-opentelemetry-collector
+name: k8s-otel-collector
 description: OpenTelemetry Collector Helm Chart
 type: application
 version: 0.3.0
