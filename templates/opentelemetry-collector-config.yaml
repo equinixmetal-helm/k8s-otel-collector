@@ -15,7 +15,6 @@ data:
       batch:
         timeout: 100s
       memory_limiter:
-        ballast_size_mib: "683"
         limit_mib: "400"
         spike_limit_mib: "100"
         check_interval: "5s"
@@ -46,8 +45,10 @@ data:
       health_check:
         port: 13133
       zpages:
+      memory_ballast:
+        size_mib: 683
     service:
-      extensions: [health_check, zpages]
+      extensions: [memory_ballast, health_check, zpages]
       pipelines:
         traces:
           receivers: [otlp]
