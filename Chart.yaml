@@ -3,7 +3,7 @@ name: helm-equinix-opentelemetry-collector
 description: OpenTelemetry Collector Helm Chart
 type: application
 version: 0.3.0
-appVersion: "0.22.0"
+appVersion: "0.38.0"
 dependencies:
   - name: common
     repository: https://charts.bitnami.com/bitnami
