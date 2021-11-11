@@ -43,7 +43,7 @@ data:
           "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
     extensions:
       health_check:
-        port: 13133
+        endpoint: 0.0.0.0:13133
       zpages:
       memory_ballast:
         size_mib: 683
