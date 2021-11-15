@@ -1,23 +1,32 @@
 # Equinix Helm chart for the OpenTelemetry Collector
 
-Based on [Honeycomb's Helm chart](https://github.com/honeycombio/helm-charts/tree/main/charts/opentelemetry-collector),
-but significantly pared down.
+Originally based on [Honeycomb's Helm chart](https://github.com/honeycombio/helm-charts/tree/main/charts/opentelemetry-collector).
 
-## Using this chart
+This chart does the following:
 
-### Add the Collector chart to your app
+- creates a Kubernetes [deployment](templates/deployment.yaml) of pods that use the specified version of the
+  [otel/opentelemetry-collector-contrib Docker image](https://hub.docker.com/r/otel/opentelemetry-collector-contrib) from Docker Hub
+- mounts a volume for the [Collector configuration file](templates/opentelemetry-collector-config.yaml), which is generated from a template that pulls cluster metadata from Atlas
+- creates a Kubernetes [service](templates/service.yaml) for the Collector, exposing relevant ports
+- pulls the Honeycomb secret in keymaker for the application namespace the Collector is deployed to
 
-Generate a tarball from this Helm chart and place it in the `charts/` directory of the target application's k8-site repository:
+That last step is specific to the deployment strategy we're using at Metal:
+**one Collector "app" per application namespace** (e.g. cacher, narhwal, boots, etc.).
 
-```sh
-cd k8s-site-{appname}
-mkdir charts
-helm package ~/path/to/k8s-otel-collector --destination ./charts
-```
+## Configuring your application to use the Collector
 
-### Set the OTLP endpoint
+Before deploying the Collector itself to your application namespace, you will need to update your app configuration to enable sending telemetry data to the Collector.
 
-Your application's OpenTelemetry configuration looks for the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable to determine where to send data.
+### Add OpenTelemetry instrumentation to the application code
+
+Go apps should use [equinix-labs/otel-init-go](https://github.com/equinix-labs/otel-init-go).
+Follow the configuration instructions in the README.
+
+For Ruby apps, follow the instructions in [Confluence](https://packet.atlassian.net/l/c/XBP11Ef4).
+
+### Set the OTLP endpoint in the app Helm chart
+
+Your application's OpenTelemetry SDK configuration looks for the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable to determine where to send data.
 In this case the OTLP endpoint is the url of the collector deployed to that application's namespace.
 
 For apps sending OTLP over HTTP (Ruby apps), use the HTTP endpoint:
@@ -47,9 +56,7 @@ Most k8s-site-{appname} charts will set environment variables in `values.yaml` l
 
 If you're not sure where to add the environment variable, ask SRE (`#sre`) or the Delivery team (`#eng-k8s`) for help.
 
-## Deploying the collector
-
-### Honeycomb secret
+### Generate a Honeycomb secret for your app and add it to keymaker
 
 Generate a new API key in Honeycomb following [these instructions in Confluence](https://packet.atlassian.net/wiki/spaces/SWE/pages/2794946582/Deploying+the+OpenTelemetry+Collector#Set-up-Honeycomb-secrets).
 The API key name in Honeycomb should use the format `prod-{appname}`.
@@ -79,6 +86,21 @@ For initial initial deployment and any changes to the OTLP endpoint, the app's p
 For some configurations, Argo will restart the pods automatically.
 For others, you may need to update the Helm chart so that Argo detects a change in the environment variables.
 Reach out to SRE (`#sre`) or the Delivery team (`#eng-k8s`) for help with that.
+
+## Deploying the collector
+
+### Add the Collector chart to your app's namespace in Atlas
+
+In the `packethost/delivery-infrastructure` repository, edit `atlas/apps.yaml`.
+Add `otel-collector` and the repoURL (git URL) as an additional list item under the `apps` section of your application's configuration:
+
+```yaml
+    - name: otel-collector
+      repoURL: "git@github.com:packethost/k8s-otel-collector.git"
+```
+
+For a better idea of where it goes, see
+[the diff for cacher](https://github.com/packethost/delivery-infrastructure/pull/1773/commits/06a8b3f9c8ddd37b7068d38f6aef055e985a09b9).
 
 ## Troubleshooting
 
