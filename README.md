@@ -67,7 +67,7 @@ The API key name in Honeycomb should use the format `prod-{appname}`.
 Next, you will need to create a yaml manifest file for the ExternalSecretPush.
 (For more information about using Keymaker, see [these instructions on the delivery docs site](https://delivery-docs.metalkube.net/core_services/keymaker/?h=keymaker#add-secret-to-secret-store).)
 
-This file won't be committed to git so you can just create it in your home directory, for example:
+This file must NOT be committed to git so you can just create it in your home directory, for example:
 
 ```shell
 vim ~/honeycomb-secret-push.yaml
