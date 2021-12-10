@@ -11,6 +11,13 @@ data:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:55681
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: "prometheus"
+              scrape_interval: 15s
+              static_configs:
+                - targets: ["127.0.0.1:8888"]
     processors:
       batch:
         timeout: 100s
@@ -41,6 +48,11 @@ data:
         headers:
           "x-honeycomb-team": "${HONEYCOMB_TEAM}"
           "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
+      otlp/metrics:
+        endpoint: "api.honeycomb.io:443"
+        headers:
+          "x-honeycomb-team": "${HONEYCOMB_TEAM}"
+          "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
@@ -54,3 +66,7 @@ data:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
           exporters: [otlp]
+        metrics:
+          receivers: [prometheus]
+          processors: []
+          exporters: [otlp/metrics]
