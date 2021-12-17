@@ -68,5 +68,5 @@ data:
           exporters: [otlp]
         metrics:
           receivers: [prometheus]
-          processors: []
+          processors: [resource]
           exporters: [otlp/metrics]
