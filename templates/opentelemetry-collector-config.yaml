@@ -14,7 +14,7 @@ data:
       prometheus:
         config:
           scrape_configs:
-            - job_name: "prometheus"
+            - job_name: {{ .Release.Namespace }}
               scrape_interval: 15s
               static_configs:
                 - targets: ["127.0.0.1:8888"]
