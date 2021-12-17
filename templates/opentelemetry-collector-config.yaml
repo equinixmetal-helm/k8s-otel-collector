@@ -11,13 +11,20 @@ data:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:55681
-      prometheus:
+      prometheus/collector-metrics:
         config:
           scrape_configs:
             - job_name: {{ .Release.Namespace }}-collector
               scrape_interval: 15s
               static_configs:
                 - targets: ["127.0.0.1:8888"]
+      prometheus/app-metrics:
+        config:
+          scrape_configs:
+            - job_name: {{ .Release.Namespace }}
+              scrape_interval: 15s
+              static_configs:
+                - targets: [""] # all the desired pods or whatever
     processors:
       batch:
         timeout: 100s
@@ -48,11 +55,16 @@ data:
         headers:
           "x-honeycomb-team": "${HONEYCOMB_TEAM}"
           "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
-      otlp/metrics:
+      otlp/collector-metrics:
         endpoint: "api.honeycomb.io:443"
         headers:
           "x-honeycomb-team": "${HONEYCOMB_TEAM}"
           "x-honeycomb-dataset": "collector-metrics"
+      otlp/app-metrics:
+        endpoint: "api.honeycomb.io:443"
+        headers:
+          "x-honeycomb-team": "${HONEYCOMB_TEAM}"
+          "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
@@ -66,7 +78,11 @@ data:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
           exporters: [otlp]
-        metrics:
-          receivers: [prometheus]
+        metrics/collector:
+          receivers: [prometheus/collector-metrics]
           processors: [resource]
-          exporters: [otlp/metrics]
+          exporters: [otlp/collector-metrics]
+        metrics/app:
+          receivers: [prometheus/app-metrics]
+          processors: [resource]
+          exporters: [otlp/app-metrics]
