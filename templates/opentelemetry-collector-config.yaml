@@ -52,7 +52,7 @@ data:
         endpoint: "api.honeycomb.io:443"
         headers:
           "x-honeycomb-team": "${HONEYCOMB_TEAM}"
-          "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
+          "x-honeycomb-dataset": "collector-metrics"
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
