@@ -20,7 +20,7 @@ data:
                 - targets: ["127.0.0.1:8888"]
     processors:
       batch:
-        timeout: 100s
+        timeout: 200ms
       memory_limiter:
         limit_mib: "400"
         spike_limit_mib: "100"
