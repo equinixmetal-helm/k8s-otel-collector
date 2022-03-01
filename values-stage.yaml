@@ -1,6 +1,3 @@
 ---
-clusterValues:
-  environment: stage
-
 honeycomb:
   dataset: staging
