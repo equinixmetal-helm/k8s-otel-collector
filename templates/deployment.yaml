@@ -41,6 +41,12 @@ spec:
                   key: honeycomb-api-key
             - name: HONEYCOMB_DATASET
               value: {{ .Values.honeycomb.dataset }}
+            # second key for new honeycomb environments, to allow double-sending
+            - name: HONEYCOMB_ENV_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: honeycomb-env-key
+                  key: honeycomb-env-key
           # These values don't change:
           ports:
             - name: otlp-http
