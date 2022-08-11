@@ -48,10 +48,22 @@ data:
         headers:
           "x-honeycomb-team": "${HONEYCOMB_TEAM}"
           "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
+      # second traces exporter to allow double-sending
+      otlp/hny-environment:
+        endpoint: "api.honeycomb.io:443"
+        headers:
+          "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
       otlp/metrics:
         endpoint: "api.honeycomb.io:443"
         headers:
           "x-honeycomb-team": "${HONEYCOMB_TEAM}"
+          "x-honeycomb-dataset": "collector-metrics"
+      # second metrics exporter to allow double-sending
+      otlp/metrics-hny-environment:
+        endpoint: "api.honeycomb.io:443"
+        headers:
+          "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
+          # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
     extensions:
       health_check:
@@ -65,8 +77,8 @@ data:
         traces:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters: [otlp]
+          exporters: [otlp, otlp/hny-environment]
         metrics:
           receivers: [prometheus]
           processors: [resource]
-          exporters: [otlp/metrics]
+          exporters: [otlp/metrics, otlp/metrics-hny-environment]
