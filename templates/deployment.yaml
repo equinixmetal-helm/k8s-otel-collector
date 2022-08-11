@@ -45,8 +45,8 @@ spec:
             - name: HONEYCOMB_ENV_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: honeycomb-env-key
-                  key: honeycomb-env-key
+                  name: honeycomb-key
+                  key: honeycomb-key
           # These values don't change:
           ports:
             - name: otlp-http
