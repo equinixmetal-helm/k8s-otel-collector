@@ -64,7 +64,7 @@ data:
         headers:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
-          "x-honeycomb-dataset": "otel-collector-metrics"
+          "x-honeycomb-dataset": "collector-metrics"
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
