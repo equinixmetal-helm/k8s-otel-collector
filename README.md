@@ -106,6 +106,8 @@ Paste the following contents, being sure to use the correct value for the new Ho
     kind: ExternalSecretPush
     metadata:
       name: honeycomb-key
+      annotations:
+          clusterlevelsecret: "true"
     spec:
       backend: ssm
       environment: prod
