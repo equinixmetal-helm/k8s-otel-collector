@@ -79,12 +79,12 @@ For some configurations, Argo will restart the pods automatically.
 For others, you may need to manually restart the pods.
 Reach out to SRE (`#sre`) or the Delivery team (`#em-delivery-eng`) if you need help with that.
 
-## Managing Honeycomb API keys
+## Manage Honeycomb API keys
 
 As of August 2022, Metal services share a global Honeycomb key for each environment.
 Service teams no longer need to worry about managing Honeycomb keys for their services.
 
-### Rotating a Honeycomb key
+### Rotate a Honeycomb key
 
 (Note: this step requires that you [set up your local Kubernetes config according to the Delivery Docs](https://delivery-docs.metalkube.net/training_and_guides/kubectl/#import-kube-configs).)
 
