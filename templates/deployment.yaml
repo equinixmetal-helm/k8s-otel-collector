@@ -34,8 +34,6 @@ spec:
             - "/otelcol-contrib"
             - "--config=/conf/opentelemetry-collector-config.yaml"
           env:
-            - name: HONEYCOMB_DATASET
-              value: {{ .Values.honeycomb.dataset }}
             - name: HONEYCOMB_ENV_API_KEY
               valueFrom:
                 secretKeyRef:

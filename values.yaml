@@ -6,7 +6,4 @@ image:
   tag: "0.42.0"
   pullPolicy: IfNotPresent
 
-honeycomb:
-  dataset: production
-
 resources: {}
