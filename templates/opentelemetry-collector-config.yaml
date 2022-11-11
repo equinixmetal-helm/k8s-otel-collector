@@ -44,6 +44,7 @@ data:
           action: insert
         - key: service.group
           value: "equinix-metal"
+          action: insert
     exporters:
       otlp:
         endpoint: "api.honeycomb.io:443"
