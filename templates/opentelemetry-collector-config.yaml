@@ -42,6 +42,8 @@ data:
         - key: metal.facility
           value: {{ .Values.clusterInfo.facility }}
           action: insert
+        - key: service.group
+          value: "equinix-metal"
     exporters:
       otlp:
         endpoint: "api.honeycomb.io:443"
