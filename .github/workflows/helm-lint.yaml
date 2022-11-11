@@ -10,7 +10,7 @@ jobs:
       with:
         exec: helm template --output-dir test-output/ .
     - name: yaml-lint
-      uses: ibiqlik/action-yamllint@v1
+      uses: ibiqlik/action-yamllint@v3
       with:
         file_or_dir: test-output
         config_file: .yamllint.yml
