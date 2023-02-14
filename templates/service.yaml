@@ -24,3 +24,7 @@ spec:
     port: 8888
     protocol: TCP
     targetPort: 8888
+  - name: prometheus-exporter
+    port: 8889
+    protocol: TCP
+    targetPort: 8889
