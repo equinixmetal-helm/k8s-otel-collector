@@ -51,9 +51,9 @@ data:
         - key: service.group
           value: "equinix-metal"
           action: insert
-    spanmetrics:
-      metrics_exporter: prometheus
-      # MASSIVE TODO
+      spanmetrics:
+        # MASSIVE TODO
+        metrics_exporter: prometheus
 
     exporters:
       otlp:
