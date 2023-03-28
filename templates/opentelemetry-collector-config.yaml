@@ -52,7 +52,6 @@ data:
           value: "equinix-metal"
           action: insert
       spanmetrics:
-        # MASSIVE TODO
         metrics_exporter: prometheus
 
     exporters:
