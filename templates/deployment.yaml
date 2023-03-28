@@ -47,7 +47,7 @@ spec:
             - name: otlp-grpc
               containerPort: 4317
               protocol: TCP
-            - name: prometheus-exporter
+            - name: prometheus-exp
               containerPort: 8889
               protocol: TCP
           volumeMounts:
