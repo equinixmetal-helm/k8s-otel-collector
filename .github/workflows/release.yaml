@@ -1,0 +1,42 @@
+name: Release k8s-otel-collector helm chart
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Publish Helm Chart
+        # TODO update from using Tyler's fork until this PR gets merged upstream:
+        # https://github.com/stefanprodan/helm-gh-pages/pull/38
+        uses: tylerauerbeck/helm-gh-pages@main
+        with:
+          token: ${{ secrets.PUBLIC_REPO_GH_PAT }}
+          charts_dir: .
+          charts_url: 'https://helm.equinixmetal.com'
+          repository: 'charts'
+          branch: gh-pages
+          app_version: ${{  github.ref_name }}
+          chart_version: ${{  github.ref_name }}
+
+  gh-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
