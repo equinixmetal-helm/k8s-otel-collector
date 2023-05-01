@@ -6,7 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Prep helm
-      uses: WyriHaximus/github-action-helm3@v2
+      uses: WyriHaximus/github-action-helm3@v3
       with:
         exec: helm template --output-dir test-output/ .
     - name: yaml-lint
