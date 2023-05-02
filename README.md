@@ -18,9 +18,10 @@ This configuration is specific to the strategy we're using at Metal:
 
 ### Add k8s-otel-collector as a dependency to the app Helm chart
 
-In your app's `Chart.yaml`, add this Helm chart as a dependency:
+Add this Helm chart as a dependency:
 
 ```yaml
+# Chart.yaml
 dependencies:
   - name: k8s-otel-collector
     repository: https://helm.equinixmetal.com
@@ -30,6 +31,7 @@ dependencies:
 If desired, override the available values:
 
 ```yaml
+# values.yaml
 otel_collector:
   memory_limiter:
     limit_mib: "400"
