@@ -1,5 +1,8 @@
 # Equinix Helm chart for the OpenTelemetry Collector
 
+A minimal Helm chart for deploying and configuring the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).
+While an excellent [community Helm chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-collector) exists, this chart is set up to define consistent defaults with very limited configuration required of downstream users.
+
 This chart does the following:
 
 - creates a Kubernetes [deployment](templates/deployment.yaml) of pods that use the specified version of the
@@ -8,42 +11,39 @@ This chart does the following:
 - creates a Kubernetes [service](templates/service.yaml) for the Collector, exposing relevant ports
 - pulls the Honeycomb API key stored in keymaker
 
-This configuration is specific to the deployment strategy we're using at Metal:
-**one Collector "app" per application namespace** (e.g. cacher, narhwal, boots, etc.).
+This configuration is specific to the strategy we're using at Metal:
+**one Collector deployment per application namespace** (e.g. API, cacher, narhwal, boots, etc.).
 
 ## Deploy the OpenTelemetry Collector for your service
 
-### Add the Collector chart to your app's namespace in Atlas
+### Add k8s-otel-collector as a dependency to the app Helm chart
 
-In the packethost/delivery-infrastructure repository, locate your service under your team's directory in [`atlas/apps.d`](https://github.com/packethost/delivery-infrastructure/tree/main/atlas/apps.d).
-Add `otel-collector` and the repoURL (git URL) as an additional list item under the `apps` section of your application's configuration:
+In your app's `Chart.yaml`, add this Helm chart as a dependency:
 
 ```yaml
-    - name: otel-collector
-      repoURL: "git@github.com:packethost/k8s-otel-collector.git"
+dependencies:
+  - name: k8s-otel-collector
+    repository: https://helm.equinixmetal.com
+    version: x.x.x  # replace with desired version
 ```
 
-[Here's what the configuration looks like for Bouncer.](https://github.com/packethost/delivery-infrastructure/blob/f14004104df373fd63856600a2ebd14b80042652/atlas/apps.d/nautilus/bouncer.yaml#L19-L20)
+If desired, override the available values:
 
-Once your PR is merged, you will need to ask the Delivery team (`#em-delivery-eng`) to sync cluster-apps.
-That will pick up the reference in Atlas to this Helm chart.
-The new `otel-collector` app will appear in your service's namespace as out-of-sync, and at that point you can sync the resources in Argo.
+```yaml
+otel_collector:
+  memory_limiter:
+    limit_mib: "400"
+    spike_limit_mib: "100"
+    check_interval: "5s"
+```
 
-## Configure your service to use the Collector
+### Set the OTLP endpoint via environment variable
 
-Once you've deployed the Collector itself to your application namespace, you can update your app configuration to enable sending telemetry data to the Collector.
+In addition to deploying the Collector itself to your application namespace,
+you will need to update your app configuration to enable sending telemetry data to the Collector.
 
-### Add OpenTelemetry instrumentation to the application code
-
-Go apps should use [equinix-labs/otel-init-go](https://github.com/equinix-labs/otel-init-go).
-Follow the configuration instructions in the README.
-
-For Ruby apps, follow the instructions in [Confluence](https://packet.atlassian.net/l/c/XBP11Ef4).
-
-### Set the OTLP endpoint in the app Helm chart
-
-Your application's OpenTelemetry SDK configuration looks for the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable to determine where to send data.
-In this case the OTLP endpoint is the static url of the collector deployed to that application's namespace.
+When you add the OpenTelemetry SDK to your application, it will look for the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable to determine where to send data.
+In this case the OTLP endpoint is the static url of the Collector deployed to that application's namespace.
 
 For apps sending OTLP over HTTP (legacy Ruby services), use the HTTP endpoint:
 
@@ -79,10 +79,19 @@ For some configurations, Argo will restart the pods automatically.
 For others, you may need to manually restart the pods.
 Reach out to SRE (`#sre`) or the Delivery team (`#em-delivery-eng`) if you need help with that.
 
+### Add OpenTelemetry instrumentation to the application code
+
+Go apps should use [equinix-labs/otel-init-go](https://github.com/equinix-labs/otel-init-go).
+Follow the configuration instructions in the README.
+
+For Ruby apps, follow the instructions in [Confluence](https://packet.atlassian.net/l/c/XBP11Ef4).
+
 ## Manage Honeycomb API keys
 
 As of August 2022, Metal services share a global Honeycomb key for each environment.
-Service teams no longer need to worry about managing Honeycomb keys for their services.
+Metal service teams no longer need to worry about managing Honeycomb keys for their services.
+The Applied Resilience Engineering team manages the Honeycomb API keys.
+Reach out in the `#sre` channel in Slack if you have questions.
 
 ### Rotate a Honeycomb key
 
