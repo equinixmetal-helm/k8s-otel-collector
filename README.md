@@ -70,14 +70,14 @@ Most k8s-site-{appname} charts will set environment variables in `values.yaml` l
     OTEL_EXPORTER_OTLP_INSECURE: "true"
 ```
 
-If you're not sure where to add the environment variable, ask SRE (`#sre`) or the Delivery team (`#em-delivery-eng`) for help.
+If you're not sure where to add the environment variable, ask Applied Resilience Engineering (`#sre`) or the Delivery team (`#em-delivery-eng`) for help.
 
 ### Sync in Argo
 
 For initial deployment and any changes to the OTLP endpoint, the app's pods will need to be restarted in order to pick up the new/updated environment variables.
 For some configurations, Argo will restart the pods automatically.
 For others, you may need to manually restart the pods.
-Reach out to SRE (`#sre`) or the Delivery team (`#em-delivery-eng`) if you need help with that.
+Reach out to Applied Resilience Engineering (`#sre`) or the Delivery team (`#em-delivery-eng`) if you need help with that.
 
 ### Add OpenTelemetry instrumentation to the application code
 
