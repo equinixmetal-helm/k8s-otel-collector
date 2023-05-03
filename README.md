@@ -168,3 +168,30 @@ If you run into issues trying to push a secret, reach out to SRE (#sre) or the D
 
 [Follow the instructions in these docs](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md)
 to set the Collector's own logs to `DEBUG`.
+
+## Releasing a new version
+
+This repo uses [GitHub Actions](https://github.com/equinixmetal-helm/k8s-otel-collector/actions/workflows/release.yaml) to package the Helm chart and publish it at [`helm.equinixmetal.com`](https://github.com/equinixmetal-helm/charts/tree/gh-pages).
+To create a new release, create a tag and push it upstream.
+Once you push the new tag, GitHub Actions will automatically create a [release](https://github.com/equinixmetal-helm/k8s-otel-collector/releases), package the Helm chart, and publish the package at equinixmetal-helm/charts.
+
+Make sure you fetch/pull the latest tags before making a new one.
+It's recommended to only push the tag you just created.
+
+```sh
+$ git fetch --all --tags
+Fetching origin
+$ git tag --list
+v0.1.0
+v0.2.0
+v0.3.0
+v0.4.0
+$ git tag v0.4.1  # create the new tag
+$ git tag --list
+v0.1.0
+v0.2.0
+v0.3.0
+v0.4.0
+v0.4.1
+$ git push origin v0.4.1  # push the new tag upstream
+```
