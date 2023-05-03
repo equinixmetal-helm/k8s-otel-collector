@@ -33,21 +33,6 @@ data:
         check_interval: {{ .Values.otel_collector.memory_limiter.check_interval }}
       resource:
         attributes:
-        - key: k8s.cluster.endpoint
-          value: {{ .Values.clusterInfo.apiEndpoint }}
-          action: insert
-        - key: k8s.cluster.class
-          value: {{ .Values.clusterInfo.class }}
-          action: insert
-        - key: k8s.cluster.fqdn
-          value: {{ .Values.clusterInfo.fqdn }}
-          action: insert
-        - key: k8s.cluster.name
-          value: {{ .Values.clusterInfo.name }}
-          action: insert
-        - key: metal.facility
-          value: {{ .Values.clusterInfo.facility }}
-          action: insert
         - key: service.group
           value: "equinix-metal"
           action: insert
