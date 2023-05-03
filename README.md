@@ -74,6 +74,27 @@ Most k8s-site-{appname} charts will set environment variables in `values.yaml` l
 
 If you're not sure where to add the environment variable, ask Applied Resilience Engineering (`#sre`) or the Delivery team (`#em-delivery-eng`) for help.
 
+### Add the ExternalSecretPull for the Honeycomb API key
+
+Equinix Metal uses a global key for all Metal services for each environment.
+Create an ExternalSecretPull to reference the global key.
+
+```yaml
+# external-secret-honeycomb-key.yaml
+---
+apiVersion: keymaker.equinixmetal.com/v1
+kind: ExternalSecretPull
+metadata:
+  name: "honeycomb-key"
+  labels:
+    component: "opentelemetry-collector"
+spec:
+  backend: ssm
+  mappings:
+    - key: /{{ .Values.clusterInfo.environment }}/honeycomb-key/v1
+      name: honeycomb-key
+```
+
 ### Sync in Argo
 
 For initial deployment and any changes to the OTLP endpoint, the app's pods will need to be restarted in order to pick up the new/updated environment variables.
