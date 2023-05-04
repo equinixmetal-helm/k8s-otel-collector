@@ -95,6 +95,36 @@ spec:
       name: honeycomb-key
 ```
 
+### Create `templates/_otel-attributes.tpl` partial template in application chart
+
+No indentation needed, the subchart will fix that.
+It's recommended to include the comment at the top so that future maintainers don't add too many custom attributes here.
+
+```yaml
+# templates/_otel-attributes.tpl
+# Attributes included here will be added to every span and every metric that
+# passes through the OpenTelemetry Collector in this service's namespace.
+# Most custom instrumentation should be done within the service's code.
+# This file is a good place to include k8s cluster info that's hard to access elsewhere.
+{{- define "otelAttributes" }}
+- key: k8s.cluster.endpoint
+  value: {{ .Values.clusterInfo.apiEndpoint }}
+  action: insert
+- key: k8s.cluster.class
+  value: {{ .Values.clusterInfo.class }}
+  action: insert
+- key: k8s.cluster.fqdn
+  value: {{ .Values.clusterInfo.fqdn }}
+  action: insert
+- key: k8s.cluster.name
+  value: {{ .Values.clusterInfo.name }}
+  action: insert
+- key: metal.facility
+  value: {{ .Values.clusterInfo.facility }}
+  action: insert
+{{- end }}
+```
+
 ### Sync in Argo
 
 For initial deployment and any changes to the OTLP endpoint, the app's pods will need to be restarted in order to pick up the new/updated environment variables.
