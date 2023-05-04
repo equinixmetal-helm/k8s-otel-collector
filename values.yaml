@@ -8,9 +8,7 @@ image:
 
 resources: {}
 
-
-otel_collector:
-  memory_limiter:
-    limit_mib: "400"
-    spike_limit_mib: "100"
-    check_interval: "5s"
+memory_limiter:
+  limit_mib: "400"
+  spike_limit_mib: "100"
+  check_interval: "5s"

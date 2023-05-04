@@ -32,7 +32,7 @@ If desired, override the available values:
 
 ```yaml
 # values.yaml
-otel_collector:
+k8s-otel-collector:
   memory_limiter:
     limit_mib: "400"
     spike_limit_mib: "100"

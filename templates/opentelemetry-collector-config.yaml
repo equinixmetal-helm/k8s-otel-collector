@@ -28,9 +28,9 @@ data:
       batch:
         timeout: 200ms
       memory_limiter:
-        limit_mib: {{ .Values.otel_collector.memory_limiter.limit_mib }}
-        spike_limit_mib: {{ .Values.otel_collector.memory_limiter.spike_limit_mib }}
-        check_interval: {{ .Values.otel_collector.memory_limiter.check_interval }}
+        limit_mib: {{ .Values.memory_limiter.limit_mib }}
+        spike_limit_mib: {{ .Values.memory_limiter.spike_limit_mib }}
+        check_interval: {{ .Values.memory_limiter.check_interval }}
       resource:
         attributes:
         - key: service.group
