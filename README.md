@@ -223,8 +223,18 @@ to set the Collector's own logs to `DEBUG`.
 ## Releasing a new version
 
 This repo uses [GitHub Actions](https://github.com/equinixmetal-helm/k8s-otel-collector/actions/workflows/release.yaml) to package the Helm chart and publish it at [`helm.equinixmetal.com`](https://github.com/equinixmetal-helm/charts/tree/gh-pages).
-To create a new release, create a tag and push it upstream.
-Once you push the new tag, GitHub Actions will automatically create a [release](https://github.com/equinixmetal-helm/k8s-otel-collector/releases), package the Helm chart, and publish the package at equinixmetal-helm/charts.
+
+To create a new release, first update Chart.yaml:
+
+```diff
+-  version: 0.4.1
++  version: 0.5.0-rc1
+```
+
+Commit your change and get your PR merged.
+Once it's merged create a tag with the same version and push it upstream.
+
+Once you push the new tag, GitHub Actions will automatically create a [release](https://github.com/equinixmetal-helm/k8s-otel-collector/releases) with a changelog, package the Helm chart, and publish the package at equinixmetal-helm/charts.
 
 Make sure you fetch/pull the latest tags before making a new one.
 It's recommended to only push the tag you just created.
