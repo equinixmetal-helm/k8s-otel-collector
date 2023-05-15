@@ -106,7 +106,7 @@ It's recommended to include the comment at the top so that future maintainers do
 # passes through the OpenTelemetry Collector in this service's namespace.
 # Most custom instrumentation should be done within the service's code.
 # This file is a good place to include k8s cluster info that's hard to access elsewhere.
-{{- define "otelAttributes" }}
+{{- define "otel_attributes" }}
 - key: k8s.cluster.endpoint
   value: {{ .Values.clusterInfo.apiEndpoint }}
   action: insert
@@ -123,6 +123,32 @@ It's recommended to include the comment at the top so that future maintainers do
   value: {{ .Values.clusterInfo.facility }}
   action: insert
 {{- end }}
+```
+
+### GitHub checks: make sure github-action-helm3 pulls down dependencies
+
+If you're using [github-action-helm3](https://github.com/WyriHaximus/github-action-helm3) in your Helm linting check, be sure that you add the `--dependency-update` flag so it'll pull down remote dependencies.
+Here's an example:
+
+```diff
+./github/workflows/helm-lint.yaml
+  name: Yaml Lint
+  on: [pull_request]
+  jobs:
+    lintAllTheThings:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+      - name: Prep helm
+        uses: WyriHaximus/github-action-helm3@v3
+        with:
+-         exec: helm template --output-dir test-output/ .
++         exec: helm template --dependency-update --output-dir test-output/ .
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: test-output
+          config_file: .yamllint.yml
 ```
 
 ### Sync in Argo
