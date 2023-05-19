@@ -125,6 +125,30 @@ It's recommended to include the comment at the top so that future maintainers do
 {{- end }}
 ```
 
+#### Ensure that the subchart can read clusterInfo via Atlas
+
+Currently, clusterInfo is not available globally in Atlas.
+In order to make the data available to subcharts, you will need to add it to the values:
+
+```diff
+    apps:
+      - name: appname
+        repoURL: "git@github.com:equinixmetal/k8s-central-appname.git"
+        clusterValuesFile: true
++       values: |
++         k8s-otel-collector:
++           clusterInfo: {{ clusterInfo .Cluster .App | toYaml | nindent 10 }}
+```
+
+Additionally, your chart's GitHub checks might fail because of a bad pointer reference, since the data is not available locally.
+To fix this, add an empty clusterInfo hashmap to your values.yaml file:
+
+```yaml
+clusterInfo: {}
+```
+
+Atlas will overwrite the empty hashmap with valid data when the chart is deployed.
+
 ### GitHub checks: make sure github-action-helm3 pulls down dependencies
 
 If you're using [github-action-helm3](https://github.com/WyriHaximus/github-action-helm3) in your Helm linting check, be sure that you add the `--dependency-update` flag so it'll pull down remote dependencies.
