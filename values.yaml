@@ -8,9 +8,11 @@ image:
 
 resources: {}
 
+memory_limiter:
+  limit_mib: "400"
+  spike_limit_mib: "100"
+  check_interval: "5s"
 
-otel_collector:
-  memory_limiter:
-    limit_mib: "400"
-    spike_limit_mib: "100"
-    check_interval: "5s"
+# including additional attributes requires creating _otel-attributes.tpl in application chart
+# see README for an example
+include_otel_attributes: false

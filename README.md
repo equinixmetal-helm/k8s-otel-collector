@@ -32,7 +32,7 @@ If desired, override the available values:
 
 ```yaml
 # values.yaml
-otel_collector:
+k8s-otel-collector:
   memory_limiter:
     limit_mib: "400"
     spike_limit_mib: "100"
@@ -73,6 +73,107 @@ Most k8s-site-{appname} charts will set environment variables in `values.yaml` l
 ```
 
 If you're not sure where to add the environment variable, ask Applied Resilience Engineering (`#sre`) or the Delivery team (`#em-delivery-eng`) for help.
+
+### Add the ExternalSecretPull for the Honeycomb API key
+
+Equinix Metal uses a global key for all Metal services for each environment.
+Create an ExternalSecretPull to reference the global key.
+
+```yaml
+# external-secret-honeycomb-key.yaml
+---
+apiVersion: keymaker.equinixmetal.com/v1
+kind: ExternalSecretPull
+metadata:
+  name: "honeycomb-key"
+  labels:
+    component: "opentelemetry-collector"
+spec:
+  backend: ssm
+  mappings:
+    - key: /{{ .Values.clusterInfo.environment }}/honeycomb-key/v1
+      name: honeycomb-key
+```
+
+### Create `templates/_otel-attributes.tpl` partial template in application chart
+
+No indentation needed, the subchart will fix that.
+It's recommended to include the comment at the top so that future maintainers don't add too many custom attributes here.
+
+```yaml
+# templates/_otel-attributes.tpl
+# Attributes included here will be added to every span and every metric that
+# passes through the OpenTelemetry Collector in this service's namespace.
+# Most custom instrumentation should be done within the service's code.
+# This file is a good place to include k8s cluster info that's hard to access elsewhere.
+{{- define "otel_attributes" }}
+- key: k8s.cluster.endpoint
+  value: {{ .Values.clusterInfo.apiEndpoint }}
+  action: insert
+- key: k8s.cluster.class
+  value: {{ .Values.clusterInfo.class }}
+  action: insert
+- key: k8s.cluster.fqdn
+  value: {{ .Values.clusterInfo.fqdn }}
+  action: insert
+- key: k8s.cluster.name
+  value: {{ .Values.clusterInfo.name }}
+  action: insert
+- key: metal.facility
+  value: {{ .Values.clusterInfo.facility }}
+  action: insert
+{{- end }}
+```
+
+#### Ensure that the subchart can read clusterInfo via Atlas
+
+Currently, clusterInfo is not available globally in Atlas.
+In order to make the data available to subcharts, you will need to add it to the values:
+
+```diff
+    apps:
+      - name: appname
+        repoURL: "git@github.com:equinixmetal/k8s-central-appname.git"
+        clusterValuesFile: true
++       values: |
++         k8s-otel-collector:
++           clusterInfo: {{ clusterInfo .Cluster .App | toYaml | nindent 10 }}
+```
+
+Additionally, your chart's GitHub checks might fail because of a bad pointer reference, since the data is not available locally.
+To fix this, add an empty clusterInfo hashmap to your values.yaml file:
+
+```yaml
+clusterInfo: {}
+```
+
+Atlas will overwrite the empty hashmap with valid data when the chart is deployed.
+
+### GitHub checks: make sure github-action-helm3 pulls down dependencies
+
+If you're using [github-action-helm3](https://github.com/WyriHaximus/github-action-helm3) in your Helm linting check, be sure that you add the `--dependency-update` flag so it'll pull down remote dependencies.
+Here's an example:
+
+```diff
+./github/workflows/helm-lint.yaml
+  name: Yaml Lint
+  on: [pull_request]
+  jobs:
+    lintAllTheThings:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+      - name: Prep helm
+        uses: WyriHaximus/github-action-helm3@v3
+        with:
+-         exec: helm template --output-dir test-output/ .
++         exec: helm template --dependency-update --output-dir test-output/ .
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: test-output
+          config_file: .yamllint.yml
+```
 
 ### Sync in Argo
 
@@ -172,8 +273,18 @@ to set the Collector's own logs to `DEBUG`.
 ## Releasing a new version
 
 This repo uses [GitHub Actions](https://github.com/equinixmetal-helm/k8s-otel-collector/actions/workflows/release.yaml) to package the Helm chart and publish it at [`helm.equinixmetal.com`](https://github.com/equinixmetal-helm/charts/tree/gh-pages).
-To create a new release, create a tag and push it upstream.
-Once you push the new tag, GitHub Actions will automatically create a [release](https://github.com/equinixmetal-helm/k8s-otel-collector/releases), package the Helm chart, and publish the package at equinixmetal-helm/charts.
+
+To create a new release, first update Chart.yaml:
+
+```diff
+-  version: 0.4.1
++  version: 0.5.0-rc1
+```
+
+Commit your change and get your PR merged.
+Once it's merged create a tag with the same version and push it upstream.
+
+Once you push the new tag, GitHub Actions will automatically create a [release](https://github.com/equinixmetal-helm/k8s-otel-collector/releases) with a changelog, package the Helm chart, and publish the package at equinixmetal-helm/charts.
 
 Make sure you fetch/pull the latest tags before making a new one.
 It's recommended to only push the tag you just created.

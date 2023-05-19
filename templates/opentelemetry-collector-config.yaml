@@ -28,26 +28,11 @@ data:
       batch:
         timeout: 200ms
       memory_limiter:
-        limit_mib: {{ .Values.otel_collector.memory_limiter.limit_mib }}
-        spike_limit_mib: {{ .Values.otel_collector.memory_limiter.spike_limit_mib }}
-        check_interval: {{ .Values.otel_collector.memory_limiter.check_interval }}
+        limit_mib: {{ .Values.memory_limiter.limit_mib }}
+        spike_limit_mib: {{ .Values.memory_limiter.spike_limit_mib }}
+        check_interval: {{ .Values.memory_limiter.check_interval }}
       resource:
-        attributes:
-        - key: k8s.cluster.endpoint
-          value: {{ .Values.clusterInfo.apiEndpoint }}
-          action: insert
-        - key: k8s.cluster.class
-          value: {{ .Values.clusterInfo.class }}
-          action: insert
-        - key: k8s.cluster.fqdn
-          value: {{ .Values.clusterInfo.fqdn }}
-          action: insert
-        - key: k8s.cluster.name
-          value: {{ .Values.clusterInfo.name }}
-          action: insert
-        - key: metal.facility
-          value: {{ .Values.clusterInfo.facility }}
-          action: insert
+        attributes:{{ if .Values.include_otel_attributes }}{{- include "otel_attributes" . | indent 8 }}{{ end }}
         - key: service.group
           value: "equinix-metal"
           action: insert
