@@ -125,6 +125,14 @@ It's recommended to include the comment at the top so that future maintainers do
 {{- end }}
 ```
 
+Then update the chart's `values.yaml` so that k8s-otel-collector knows to use the template:
+
+```diff
+# values.yaml
++ k8s-otel-collector:
++   include_otel_attributes: true
+```
+
 #### Ensure that the subchart can read clusterInfo via Atlas
 
 Currently, clusterInfo is not available globally in Atlas.
