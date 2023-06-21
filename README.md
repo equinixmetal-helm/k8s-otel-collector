@@ -33,6 +33,9 @@ If desired, override the available values:
 ```yaml
 # values.yaml
 k8s-otel-collector:
+  image:
+    tag: "0.x.x" # override with your desired otel/opentelemetry-collector-contrib image version:
+                 # https://hub.docker.com/r/otel/opentelemetry-collector-contrib/tags
   memory_limiter:
     limit_mib: "400"
     spike_limit_mib: "100"

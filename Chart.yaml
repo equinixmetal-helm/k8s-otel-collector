@@ -2,8 +2,8 @@ apiVersion: v2
 name: k8s-otel-collector
 description: OpenTelemetry Collector Helm Chart
 type: application
-version: 0.5.1
-appVersion: "0.42.0"  # OpenTelemetry Collector build version
+version: 0.6.0
+appVersion: "0.80.0"  # otel/opentelemetry-collector-contrib image version
 dependencies:
   - name: common
     repository: https://charts.bitnami.com/bitnami
