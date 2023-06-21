@@ -3,7 +3,7 @@ clusterInfo: {}
 
 image:
   repository: otel/opentelemetry-collector-contrib
-  tag: "0.42.0"
+  tag: "0.80.0"
   pullPolicy: IfNotPresent
 
 resources: {}
