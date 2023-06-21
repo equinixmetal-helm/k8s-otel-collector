@@ -127,10 +127,9 @@ It's recommended to include the comment at the top so that future maintainers do
 
 Then update the chart's `values.yaml` so that k8s-otel-collector knows to use the template:
 
-```diff
-# values.yaml
-+ k8s-otel-collector:
-+   include_otel_attributes: true
+```yaml
+k8s-otel-collector:
+  include_otel_attributes: true
 ```
 
 #### Ensure that the subchart can read clusterInfo via Atlas
@@ -286,7 +285,7 @@ To create a new release, first update Chart.yaml:
 
 ```diff
 -  version: 0.4.1
-+  version: 0.5.0-rc1
++  version: 0.5.0
 ```
 
 Commit your change and get your PR merged.
@@ -305,12 +304,14 @@ v0.1.0
 v0.2.0
 v0.3.0
 v0.4.0
-$ git tag v0.4.1  # create the new tag
+v0.4.1
+$ git tag 0.5.0  # create the new tag
 $ git tag --list
 v0.1.0
 v0.2.0
 v0.3.0
 v0.4.0
 v0.4.1
-$ git push origin v0.4.1  # push the new tag upstream
+0.5.0 # it's better not to prefix with v
+$ git push origin 0.5.0  # push the new tag upstream
 ```
