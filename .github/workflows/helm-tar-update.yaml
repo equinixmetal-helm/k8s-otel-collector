@@ -1,0 +1,9 @@
+name: Update Helm Tarball
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  update-helm-deps-tarballs:
+    uses: metal-toolbox/helm-tar-update/.github/workflows/helm-tar-update.yml@main
