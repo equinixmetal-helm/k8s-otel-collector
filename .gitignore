@@ -1,5 +1,2 @@
 # `helm template` output
 test/
-
-# `helm package` output
-*.tgz
