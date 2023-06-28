@@ -14,6 +14,11 @@ This chart does the following:
 This configuration is specific to the strategy we're using at Metal:
 **one Collector deployment per application namespace** (e.g. API, cacher, narhwal, boots, etc.).
 
+## Maintainers
+
+This chart is maintained by the [[Governor] Metal OpenTelemetry GitHub team](https://github.com/orgs/equinixmetal-helm/teams/governor-metal-opentelemetry).
+If you would like to be a maintainer, request to join the Metal OpenTelemetry group via Governor.
+
 ## Deploy the OpenTelemetry Collector for your service
 
 ### Add k8s-otel-collector as a dependency to the app Helm chart
