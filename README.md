@@ -46,8 +46,8 @@ k8s-otel-collector:
     spike_limit_mib: "100"
     check_interval: "5s"
 
-servicemonitor:
-  enabled: false
+  servicemonitor:
+    enabled: false
 ```
 
 ### Set the OTLP endpoint via environment variable
