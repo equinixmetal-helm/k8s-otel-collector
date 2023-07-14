@@ -13,4 +13,6 @@ spec:
   endpoints:
   - port: prometheus-collector-metrics
     interval: 15s
+  - port: prometheus-spanmetrics
+    interval: 15s
 {{- end }}
