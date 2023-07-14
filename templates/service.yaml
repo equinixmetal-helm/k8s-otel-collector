@@ -20,11 +20,25 @@ spec:
     port: 55681
     protocol: TCP
     targetPort: otlp-http
-  - name: prometheus
+  - name: prometheus-collector-metrics
     port: 8888
     protocol: TCP
     targetPort: 8888
-  - name: prometheus-exporter
-    port: 8889
-    protocol: TCP
-    targetPort: 8889
+
+
+{{ if .Values.servicemonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: opentelemetry-collector-servicemonitor
+  labels:
+    app: opentelemetry-collector
+spec:
+  selector:
+    matchLabels:
+      app: opentelemetry-collector
+  endpoints:
+  - port: prometheus-collector-metrics
+    interval: 15s
+{{ end }}
