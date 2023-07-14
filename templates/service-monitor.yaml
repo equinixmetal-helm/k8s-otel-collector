@@ -1,0 +1,16 @@
+{{- if .Values.servicemonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: opentelemetry-collector-servicemonitor
+  labels:
+    k8s-app: opentelemetry-collector
+spec:
+  selector:
+    matchLabels:
+      k8s-app: opentelemetry-collector
+  endpoints:
+  - port: prometheus-collector-metrics
+    interval: 15s
+{{- end }}

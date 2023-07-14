@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: opentelemetry-collector
+  labels:
+    k8s-app: opentelemetry-collector
 spec:
   sessionAffinity: None
   type: ClusterIP
@@ -24,21 +26,3 @@ spec:
     port: 8888
     protocol: TCP
     targetPort: 8888
-
-
-{{ if .Values.servicemonitor.enabled }}
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: opentelemetry-collector-servicemonitor
-  labels:
-    app: opentelemetry-collector
-spec:
-  selector:
-    matchLabels:
-      app: opentelemetry-collector
-  endpoints:
-  - port: prometheus-collector-metrics
-    interval: 15s
-{{ end }}
