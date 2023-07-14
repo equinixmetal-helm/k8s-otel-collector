@@ -43,10 +43,8 @@ data:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
-      prometheusremotewrite:
-        endpoint: http://localhost:9090/api/v1/write
-        target_info:
-          enabled: true
+      prometheus:
+        endpoint: "0.0.0.0:9090"
 
     connectors:
       spanmetrics:
@@ -83,4 +81,4 @@ data:
         metrics/spanmetrics:
           receivers: [spanmetrics]
           processors: []
-          exporters: [prometheusremotewrite]
+          exporters: [prometheus]
