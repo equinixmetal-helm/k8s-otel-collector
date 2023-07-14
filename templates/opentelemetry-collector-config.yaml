@@ -71,8 +71,8 @@ data:
         traces:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters: [spanmetrics]
+          exporters: [otlp, spanmetrics]
         metrics:
-          receivers: [spanmetrics]
+          receivers: [prometheus, spanmetrics]
           processors: [resource]
           exporters: [otlp/metrics]
