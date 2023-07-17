@@ -21,35 +21,93 @@ helm template . --output-dir test --debug
 
 Note that Helm will overwrite the contents of your output directory with each run.
 
-### Packaging the chart locally
+### Using a service chart with local k8s-otel-collector
 
-Use `helm package` with optional flags to create a `.tgz` of this chart, which can be copied into the `charts/` directory of a service chart using k8s-otel-collector as a subchart:
+(In this context, the service's chart is called the [*parent chart*](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/)).
+Mentioning here just because there's some Helm behavior that's specific to parent charts vs. subcharts.)
 
-```console
-# from repository root
-$ helm package .
-Successfully packaged chart and saved it to: /Users/spees/repos/k8s-otel-collector/k8s-otel-collector-0.5.0.tgz
+In k8s-otel-collector, update `Chart.yaml` to a test version:
+
+```diff
+  apiVersion: v2
+  name: k8s-otel-collector
+  description: OpenTelemetry Collector Helm Chart
+  type: application
+- version: 0.6.1
++ version: 0.7.0-test
 ```
 
-### Rendering a service chart with k8s-otel-collector
+In the service chart's `Chart.yaml`, update the k8s-otel-collector repository and version:
 
-Once you've packaged k8s-otel-collector, copy it into the local chart repo for your desired service chart:
-
-```console
-~/repos/k8s-otel-collector $ cp k8s-otel-collector-0.5.0.tgz ../k8s-site-narwhal/charts
+```diff
+  dependencies:
+    . . .
+    - name: k8s-otel-collector
+-     repository: helm.equinixmetal.com
++     repository: file://../k8s-otel-collector # replace with the path to your local repo
+-     version: 0.6.1
++     version: 0.7.0-test
 ```
 
-From within the other service's chart you can test the compiled output with the same `helm template` command as above:
+Run `helm dependency update` to have Helm pull your local version of the k8s-otel-collector (it might also update other dependencies):
 
 ```console
-~/repos/k8s-site-narwhal $ helm template . --output-dir test --debug
+~/repos/k8s-my-service $ helm dependency update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 2 charts
+Downloading common from repo https://charts.bitnami.com/bitnami
+Deleting outdated charts
+~/repos/k8s-my-service $ git status
+On branch otel-test
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   Chart.lock
+        modified:   Chart.yaml
+        deleted:    charts/common-2.4.0.tgz
+        deleted:    charts/k8s-otel-collector-0.6.1.tgz
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        charts/common-2.6.0.tgz
+        charts/k8s-otel-collector-0.7.0-test.tgz
+
+no changes added to commit (use "git add" and/or "git commit -a")
+~/repos/k8s-my-service $
 ```
 
-The files for k8s-otel-collector (considered a subchart in this case) will end up in the `charts/` subdirectory under your `test/` directory.
+### Render the service chart locally
+
+You can test the compiled output with the same `helm template` command as above:
+
+```console
+~/repos/k8s-my-service $ helm template . --output-dir test --debug
+```
+
+The files for the k8s-otel-collector subchart will be rendered in the `charts/` subdirectory under your `test/` directory.
+
+```
+test
+└── k8s-my-service
+    ├── charts
+    │   └── k8s-otel-collector
+    │       └── templates
+    │           ├── deployment.yaml
+    │           ├── opentelemetry-collector-config.yaml
+    │           ├── service-monitor.yaml
+    │           └── service.yaml
+    └── templates
+        └── app
+            ├── config.yaml
+            ├── deployment.yaml
+            ├── service.yaml
+            └── etc.
+```
 
 **Be sure not to commit the rendered output directory to the service's chart repo!**
-Both the packaged `.tgz` files and the `test/` directory are ignored by git in this repo but they may not be ignored in other repos.
-You'll need to commit the `.tgz` package for canary testing (see next section) but be sure to remove it before merging to main in the service chart's repo.
+The `test/` directory is ignored by git in this repo but it may not be ignored in other repos.
 
 ### Note: `.Values.clusterInfo` won't render locally
 
@@ -61,31 +119,14 @@ In order to test that the chart is working correctly, you'll need to canary a te
 
 ## Canarying on a service
 
-### Commit to a test branch
+### Use local version of k8s-otel-collector
 
-Package k8s-otel-collector and copy package into service chart repo `charts/` directory:
+Follow the instructions in the above section updating the service chart's `Chart.yaml` to point to the k8s-otel-collector repository and version.
 
-```console
-~/repos/k8s-otel-collector $ helm package .
-Successfully packaged chart and saved it to: /Users/spees/repos/k8s-otel-collector/k8s-otel-collector-0.5.1-test.tgz
-~/repos/k8s-otel-collector $ cp k8s-otel-collector-0.5.1-test.tgz ../k8s-site-narwhal/charts
-```
-
-Update the version in `Chart.yaml`:
-
-```diff
-  dependencies:
-    . . .
-    - name: k8s-otel-collector
-      repository: https://helm.equinixmetal.com
--     version: 0.5.0
-+     version: 0.5.1-test
-```
-
-Make any other relevant changes in the service's chart (in this context, called the [*parent chart*](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/)), and then commit your changes to a new branch.
+Make any other relevant changes in the service's chart, and then commit your changes to a new branch.
 Push your branch to the service chart's upstream repo.
 
-### Canary deploy your test branch
+### Perform a branch deploy on the service
 
 Before deploying any changes, check with the team whose service chart you're testing on.
 If it's an edge service, the team may be able to suggest a site that's a safe place for canarying.
