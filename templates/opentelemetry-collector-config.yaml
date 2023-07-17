@@ -43,6 +43,22 @@ data:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
+      prometheus:
+        endpoint: "0.0.0.0:9090"
+
+    connectors:
+      spanmetrics:
+        histogram:
+          explicit:
+            buckets: [2ms, 4ms, 6ms, 8ms, 10ms, 50ms, 100ms, 200ms, 400ms, 800ms, 1s, 1400ms, 2s, 5s, 10s, 15s]
+        dimensions:
+          - name: http.method
+            default: GET
+          - name: http.status_code
+        exclude_dimensions: ['status.code']
+        dimensions_cache_size: 1000
+        aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"    
+        metrics_flush_interval: 15s
 
     extensions:
       health_check:
@@ -50,14 +66,19 @@ data:
       zpages:
       memory_ballast:
         size_mib: 683
+
     service:
       extensions: [memory_ballast, health_check, zpages]
       pipelines:
         traces:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters: [otlp]
+          exporters: [otlp, spanmetrics]
         metrics:
           receivers: [prometheus]
           processors: [resource]
           exporters: [otlp/metrics]
+        metrics/spanmetrics:
+          receivers: [spanmetrics]
+          processors: []
+          exporters: [prometheus]

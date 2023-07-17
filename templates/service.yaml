@@ -26,3 +26,7 @@ spec:
     port: 8888
     protocol: TCP
     targetPort: 8888
+  - name: prometheus-spanmetrics
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
