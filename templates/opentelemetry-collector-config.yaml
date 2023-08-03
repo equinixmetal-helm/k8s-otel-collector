@@ -5,16 +5,16 @@ metadata:
 data:
   opentelemetry-collector-config: |
     receivers:
-      otlp:
+      otlp:  # can receive all data formats
         protocols:
           grpc:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:55681
-      prometheus:
+      prometheus/collector-metrics:
         config:
           scrape_configs:
-            - job_name: {{ .Release.Namespace }}-collector
+            - job_name: {{ .Release.Namespace }}-collector  # becomes service.name in collector-metrics dataset
               scrape_interval: 15s
               static_configs:
                 - targets: ["127.0.0.1:8888"]
@@ -23,9 +23,9 @@ data:
       batch:
         timeout: 200ms
       memory_limiter:
-        limit_mib: {{ .Values.memory_limiter.limit_mib }}
+        limit_mib:       {{ .Values.memory_limiter.limit_mib }}
         spike_limit_mib: {{ .Values.memory_limiter.spike_limit_mib }}
-        check_interval: {{ .Values.memory_limiter.check_interval }}
+        check_interval:  {{ .Values.memory_limiter.check_interval }}
       resource:
         attributes:{{ if .Values.include_otel_attributes }}{{- include "otel_attributes" . | indent 8 }}{{ end }}
         - key: service.group
@@ -33,17 +33,17 @@ data:
           action: insert
 
     exporters:
-      otlp:
+      otlp/traces-honeycomb:
         endpoint: "api.honeycomb.io:443"
         headers:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
-      otlp/metrics:
+      otlp/collector-metrics-honeycomb:
         endpoint: "api.honeycomb.io:443"
         headers:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
-      prometheus:
+      prometheus/spanmetrics:
         endpoint: "0.0.0.0:9090"
 
     connectors:
@@ -71,14 +71,14 @@ data:
       extensions: [memory_ballast, health_check, zpages]
       pipelines:
         traces:
-          receivers: [otlp]
+          receivers:  [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters: [otlp, spanmetrics]
-        metrics:
-          receivers: [prometheus]
+          exporters:  [otlp/traces-honeycomb, spanmetrics]
+        metrics/collector-metrics:
+          receivers:  [prometheus/collector-metrics]
           processors: [memory_limiter, resource, batch]
-          exporters: [otlp/metrics]
+          exporters:  [otlp/collector-metrics-honeycomb]
         metrics/spanmetrics:
-          receivers: [spanmetrics]
+          receivers:  [spanmetrics]
           processors: [memory_limiter, batch]
-          exporters: [prometheus]
+          exporters:  [prometheus/spanmetrics]
