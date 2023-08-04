@@ -4,6 +4,7 @@ metadata:
   name: opentelemetry-collector
 data:
   opentelemetry-collector-config: |
+
     receivers:
       otlp:  # can receive all data formats
         protocols:
@@ -27,7 +28,10 @@ data:
         spike_limit_mib: {{ .Values.memory_limiter.spike_limit_mib }}
         check_interval:  {{ .Values.memory_limiter.check_interval }}
       resource:
-        attributes:{{ if .Values.include_otel_attributes }}{{- include "otel_attributes" . | indent 8 }}{{ end }}
+        attributes:
+        {{- if .Values.include_otel_attributes }}
+        {{- include "otel_attributes" . | indent 8 }}
+        {{- end }}
         - key: service.group
           value: "equinix-metal"
           action: insert
@@ -43,43 +47,38 @@ data:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
-      prometheus/spanmetrics:
-        endpoint: "0.0.0.0:9090"
-
-    connectors:
-      spanmetrics:
-        histogram:
-          explicit:
-            buckets: [2ms, 4ms, 6ms, 8ms, 10ms, 50ms, 100ms, 200ms, 400ms, 800ms, 1s, 1400ms, 2s, 5s, 10s, 15s]
-        dimensions:
-          - name: http.method
-            default: GET
-          - name: http.status_code
-        exclude_dimensions: ['status.code']
-        dimensions_cache_size: 1000
-        aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"    
-        metrics_flush_interval: 15s
+      {{- if .Values.addl_traces_exporter.enabled }}
+      {{ .Values.addl_traces_exporter.name }}:
+        endpoint: {{ .Values.addl_traces_exporter.endpoint }}
+        tls:
+          {{ .Values.addl_traces_exporter.tls }}
+      {{- end }}
 
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
-      zpages:{{ if .Values.memory_ballast.enabled }}
+      zpages:
+      {{- if .Values.memory_ballast.enabled }}
       memory_ballast:
-        size_mib: {{ .Values.memory_ballast.size_mib }}{{ end }}
+        size_mib: {{ .Values.memory_ballast.size_mib }}
+      {{- end }}
 
-    service:{{ if .Values.memory_ballast.enabled }}
-      extensions: [memory_ballast, health_check, zpages]{{ else }}
-      extensions: [health_check, zpages]{{ end }}
+    service:
+    {{- if .Values.memory_ballast.enabled }}
+      extensions: [memory_ballast, health_check, zpages]
+      {{- else }}
+      extensions: [health_check, zpages]
+      {{- end }}
       pipelines:
         traces:
           receivers:  [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters:  [otlp/traces-honeycomb, spanmetrics]
+          {{- if .Values.addl_traces_exporter.enabled }}
+          exporters:  [otlp/traces-honeycomb, {{ .Values.addl_traces_exporter.name }}]
+          {{- else }}
+          exporters:  [otlp/traces-honeycomb]
+          {{- end }}
         metrics/collector-metrics:
           receivers:  [prometheus/collector-metrics]
           processors: [memory_limiter, resource, batch]
           exporters:  [otlp/collector-metrics-honeycomb]
-        metrics/spanmetrics:
-          receivers:  [spanmetrics]
-          processors: [memory_limiter, batch]
-          exporters:  [prometheus/spanmetrics]
