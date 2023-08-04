@@ -19,10 +19,10 @@ memory_ballast:
 
 # allow exporting to an additional collector or tracing backend
 addl_traces_exporter:
-  enabled: true
-  name: otlp/spanmetrics
-  endpoint: spanmetrics-collector:4317
-  tls: "insecure: true"
+  enabled: false
+  # name: otlp/spanmetrics
+  # endpoint: spanmetrics-collector:4317
+  # tls: "insecure: true"
 
 # override in downstream parent chart to deploy ServiceMonitor
 # allows Prometheus Operator to scrape metrics
