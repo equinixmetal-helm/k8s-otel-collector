@@ -47,11 +47,11 @@ data:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
-      {{- if .Values.spanmetrics_exporter.enabled }}
-      otlp/spanmetrics:
-        endpoint: {{ .Values.spanmetrics_exporter.endpoint }}
+      {{- if .Values.addl_traces_exporter.enabled }}
+      {{ .Values.addl_traces_exporter.name }}:
+        endpoint: {{ .Values.addl_traces_exporter.endpoint }}
         tls:
-          insecure: true
+          {{ .Values.addl_traces_exporter.tls }}
       {{- end }}
 
     extensions:
@@ -73,8 +73,8 @@ data:
         traces:
           receivers:  [otlp]
           processors: [memory_limiter, resource, batch]
-          {{- if .Values.spanmetrics_exporter.enabled }}
-          exporters:  [otlp/traces-honeycomb, otlp/spanmetrics]
+          {{- if .Values.addl_traces_exporter.enabled }}
+          exporters:  [otlp/traces-honeycomb, {{ .Values.addl_traces_exporter.name }}]
           {{- else }}
           exporters:  [otlp/traces-honeycomb]
           {{- end }}
