@@ -13,6 +13,10 @@ memory_limiter:
   spike_limit_mib: "100"
   check_interval: "5s"
 
+memory_ballast:
+  enabled: true
+  size_mib: 683
+
 # override in downstream parent chart to deploy ServiceMonitor
 # allows Prometheus Operator to scrape metrics
 servicemonitor:

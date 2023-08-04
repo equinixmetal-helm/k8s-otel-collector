@@ -63,12 +63,13 @@ data:
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
-      zpages:
+      zpages:{{ if .Values.memory_ballast.enabled }}
       memory_ballast:
-        size_mib: 683
+        size_mib: {{ .Values.memory_ballast.size_mib }}{{ end }}
 
-    service:
-      extensions: [memory_ballast, health_check, zpages]
+    service:{{ if .Values.memory_ballast.enabled }}
+      extensions: [memory_ballast, health_check, zpages]{{ else }}
+      extensions: [health_check, zpages]{{ end }}
       pipelines:
         traces:
           receivers:  [otlp]
