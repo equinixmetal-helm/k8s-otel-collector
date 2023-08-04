@@ -4,6 +4,8 @@ metadata:
   name: opentelemetry-collector
 data:
   opentelemetry-collector-config: |
+
+
     receivers:
       otlp:  # can receive all data formats
         protocols:
@@ -43,6 +45,10 @@ data:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
+      {{ if .Values.traces_pipeline.spanmetrics_exporter }}otlp/spanmetrics:
+        endpoint: otel-spanmetrics:4317
+        tls:
+          insecure: true{{ end }}
 
     extensions:
       health_check:
@@ -58,7 +64,7 @@ data:
         traces:
           receivers:  [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters:  [otlp/traces-honeycomb]
+          {{ if .Values.traces_pipeline.spanmetrics_exporter }}exporters:  [otlp/traces-honeycomb, otlp/spanmetrics]{{ else }}exporters:  [otlp/traces-honeycomb]{{ end }}
         metrics/collector-metrics:
           receivers:  [prometheus/collector-metrics]
           processors: [memory_limiter, resource, batch]
