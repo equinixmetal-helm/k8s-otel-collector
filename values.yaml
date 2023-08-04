@@ -17,8 +17,9 @@ memory_ballast:
   enabled: true
   size_mib: 683
 
-traces_pipeline:
-  spanmetrics_exporter: true # false by default
+spanmetrics_exporter:
+  enabled: false
+  # endpoint: spanmetrics-collector:4317
 
 # override in downstream parent chart to deploy ServiceMonitor
 # allows Prometheus Operator to scrape metrics

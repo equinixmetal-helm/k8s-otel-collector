@@ -5,7 +5,6 @@ metadata:
 data:
   opentelemetry-collector-config: |
 
-
     receivers:
       otlp:  # can receive all data formats
         protocols:
@@ -29,7 +28,10 @@ data:
         spike_limit_mib: {{ .Values.memory_limiter.spike_limit_mib }}
         check_interval:  {{ .Values.memory_limiter.check_interval }}
       resource:
-        attributes:{{ if .Values.include_otel_attributes }}{{- include "otel_attributes" . | indent 8 }}{{ end }}
+        attributes:
+        {{- if .Values.include_otel_attributes }}
+        {{- include "otel_attributes" . | indent 8 }}
+        {{- end }}
         - key: service.group
           value: "equinix-metal"
           action: insert
@@ -45,26 +47,37 @@ data:
           "x-honeycomb-team": "${HONEYCOMB_ENV_API_KEY}"
           # dataset is required for metrics data
           "x-honeycomb-dataset": "collector-metrics"
-      {{ if .Values.traces_pipeline.spanmetrics_exporter }}otlp/spanmetrics:
-        endpoint: otel-spanmetrics:4317
+      {{- if .Values.spanmetrics_exporter.enabled }}
+      otlp/spanmetrics:
+        endpoint: {{ .Values.spanmetrics_exporter.endpoint }}
         tls:
-          insecure: true{{ end }}
+          insecure: true
+      {{- end }}
 
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
-      zpages:{{ if .Values.memory_ballast.enabled }}
+      zpages:
+      {{- if .Values.memory_ballast.enabled }}
       memory_ballast:
-        size_mib: {{ .Values.memory_ballast.size_mib }}{{ end }}
+        size_mib: {{ .Values.memory_ballast.size_mib }}
+      {{- end }}
 
-    service:{{ if .Values.memory_ballast.enabled }}
-      extensions: [memory_ballast, health_check, zpages]{{ else }}
-      extensions: [health_check, zpages]{{ end }}
+    service:
+    {{- if .Values.memory_ballast.enabled }}
+      extensions: [memory_ballast, health_check, zpages]
+      {{- else }}
+      extensions: [health_check, zpages]
+      {{- end }}
       pipelines:
         traces:
           receivers:  [otlp]
           processors: [memory_limiter, resource, batch]
-          {{ if .Values.traces_pipeline.spanmetrics_exporter }}exporters:  [otlp/traces-honeycomb, otlp/spanmetrics]{{ else }}exporters:  [otlp/traces-honeycomb]{{ end }}
+          {{- if .Values.spanmetrics_exporter.enabled }}
+          exporters:  [otlp/traces-honeycomb, otlp/spanmetrics]
+          {{- else }}
+          exporters:  [otlp/traces-honeycomb]
+          {{- end }}
         metrics/collector-metrics:
           receivers:  [prometheus/collector-metrics]
           processors: [memory_limiter, resource, batch]
