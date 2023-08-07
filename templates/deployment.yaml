@@ -46,9 +46,6 @@ spec:
             - name: otlp-grpc
               containerPort: 4317
               protocol: TCP
-            - name: prometheus-exp
-              containerPort: 8889
-              protocol: TCP
           volumeMounts:
             - name: opentelemetry-collector-config
               mountPath: /conf

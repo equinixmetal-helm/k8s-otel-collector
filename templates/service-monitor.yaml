@@ -11,8 +11,6 @@ spec:
     matchLabels:
       k8s-app: opentelemetry-collector
   endpoints:
-  - port: prometheus-collector-metrics
-    interval: 15s
-  - port: prometheus-spanmetrics
+  - port: collector-metrics
     interval: 15s
 {{- end }}
