@@ -143,7 +143,9 @@ k8s-otel-collector:
 #### Ensure that the subchart can read clusterInfo via Atlas
 
 Currently, clusterInfo is not available globally in Atlas.
-In order to make the data available to subcharts, you will need to add it to the values:
+In order to make the data available to subcharts, you will need to update the Atlas configuration for your service, under the `apps.d/` directory.
+
+Add these lines under `values`:
 
 ```diff
     apps:
