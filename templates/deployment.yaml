@@ -29,6 +29,10 @@ spec:
       containers:
         - name: opentelemetry-collector
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- if .Values.securityContext }}
+          securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
           command:
             - "/otelcol-contrib"
             - "--config=/conf/opentelemetry-collector-config.yaml"
