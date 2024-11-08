@@ -53,6 +53,18 @@ data:
         tls:
           {{ .Values.addl_traces_exporter.tls }}
       {{- end }}
+    {{- if .Values.splunk_hec.enabled }}
+    splunk_hec:
+      logs:
+        token: "${SPLUNK_HEC_LOGS_TOKEN}"
+        endpoint: "{{ .Values.splunk_hec.logs.endpoint }}"
+        source: "{{ .Values.splunk_hec.logs.source }}"
+        sourcetype: "{{ .Values.splunk_hec.logs.sourcetype }}"
+        log_data_enabled: {{ .Values.splunk_hec.logs.log_data_enabled }}
+        index: "{{ .Values.splunk_hec.logs.index }}"
+        tls:
+          insecure_skip_verify: {{ .Values.splunk_hec.logs.tls.insecure_skip_verify }}
+    {{- end }}
 
     extensions:
       health_check:
@@ -82,3 +94,9 @@ data:
           receivers:  [prometheus/collector-metrics]
           processors: [memory_limiter, resource, batch]
           exporters:  [otlp/collector-metrics-honeycomb]
+        {{- if .Values.splunk_hec.enabled }}
+        logs:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [splunk_hec/logs]
+        {{- end }}

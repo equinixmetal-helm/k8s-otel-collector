@@ -24,6 +24,18 @@ addl_traces_exporter:
   # endpoint: spanmetrics-collector:4317
   # tls: "insecure: true"
 
+# allow exporting logs to splunk
+splunk_hec:
+  enabled: false
+  # logs:
+  #   endpoint: ""
+  #   source: ""
+  #   sourcetype: ""
+  #   log_data_enabled: true
+  #   index: ""
+  #   tls:
+  #     insecure_skip_verify: false
+
 # override in downstream parent chart to deploy ServiceMonitor
 # allows Prometheus Operator to scrape metrics
 servicemonitor:

@@ -42,6 +42,11 @@ spec:
                 secretKeyRef:
                   name: honeycomb-key
                   key: honeycomb-key
+            - name: SPLUNK_HEC_LOGS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-hec-token
+                  key: splunk-hec-token
           # These values don't change:
           ports:
             - name: otlp-http
