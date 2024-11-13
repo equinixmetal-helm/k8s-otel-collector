@@ -1,3 +1,5 @@
+⚠️ This repository has been archived and is unmaintained. ⚠️ 
+
 # Equinix Helm chart for the OpenTelemetry Collector
 
 A minimal Helm chart for deploying and configuring the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).
